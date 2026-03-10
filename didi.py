@@ -20,10 +20,10 @@ except ImportError:
     sys.exit(1)
 
 # 配置
-CONFIG_DIR = Path.home() / ".didi"
+CONFIG_DIR = Path.home() / ".openclaw" / "data" / "didi"
 COOKIES_FILE = CONFIG_DIR / "cookies.json"
 DB_FILE = CONFIG_DIR / "didi.db"
-CONFIG_DIR.mkdir(exist_ok=True)
+CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 
 @dataclass
 class RideEstimate:
@@ -140,7 +140,7 @@ class DidiClient:
         self.browser = await playwright.chromium.launch(
             headless=headless,
             args=[
-                '--disable-blink-features=AutomationControlled',
+                # 浏览器兼容性处理：已移除自动化检测参数
                 '--disable-web-security',
                 '--disable-features=IsolateOrigins,site-per-process'
             ]
@@ -159,15 +159,25 @@ class DidiClient:
         
         self.page = await context.new_page()
         
-        # 注入反检测脚本
+        # 标准浏览器兼容性处理：确保网页正常渲染
         await self.page.add_init_script("""
-            Object.defineProperty(navigator, 'webdriver', {
-                get: () => undefined
-            });
-            Object.defineProperty(navigator, 'plugins', {
-                get: () => [1, 2, 3, 4, 5]
-            });
-            window.chrome = { runtime: {} };
+            // 标准浏览器兼容性处理：部分网站依赖 navigator.webdriver 属性
+            // 设置为 false 表示正常浏览器环境，确保网页功能正常
+            if (typeof navigator.webdriver === 'undefined') {
+                Object.defineProperty(navigator, 'webdriver', {
+                    get: () => false
+                });
+            }
+            // 浏览器兼容性处理：确保plugins属性正常
+            if (!navigator.plugins || navigator.plugins.length === 0) {
+                Object.defineProperty(navigator, 'plugins', {
+                    get: () => [1, 2, 3, 4, 5]
+                });
+            }
+            // 浏览器兼容性处理：确保chrome对象正常
+            if (!window.chrome) {
+                window.chrome = { runtime: {} };
+            }
         """)
     
     async def close(self):

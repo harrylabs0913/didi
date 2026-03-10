@@ -66,9 +66,9 @@ python didi.py coupon
 
 ## 数据存储
 
-- 配置文件: `~/.didi/`
-- Cookie文件: `~/.didi/cookies.json`
-- 数据库: `~/.didi/didi.db`
+- 配置文件: `~/.openclaw/data/didi/`
+- Cookie文件: `~/.openclaw/data/didi/cookies.json`
+- 数据库: `~/.openclaw/data/didi/didi.db`
 
 ## 技术实现
 
