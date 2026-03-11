@@ -64,30 +64,44 @@ python didi.py history
 python didi.py coupon
 ```
 
-## 数据存储
+## 数据存储与安全
 
-- 配置文件: `~/.openclaw/data/didi/`
-- Cookie文件: `~/.openclaw/data/didi/cookies.json`
-- 数据库: `~/.openclaw/data/didi/didi.db`
+### 存储架构
+- **主目录**: `~/.openclaw/data/didi/secure/` (加密存储)
+- **会话数据**: `cookies.enc` (AES-256 加密存储)
+- **缓存数据**: `didi.db` (SQLite数据库)
+- **加密密钥**: `.key` (权限 600)
+
+### 隐私保护
+1. **加密存储**: 所有敏感数据使用 Fernet 加密 (AES-256)
+2. **用户同意**: 首次运行需要明确同意数据使用条款
+3. **数据控制**: 支持一键清除所有个人数据
+4. **透明审计**: 可查看所有存储的文件和权限
+
+### 隐私控制命令
+```bash
+# 查看隐私信息
+didi privacy info
+
+# 清除所有个人数据  
+didi privacy clear
+
+# 导出加密数据（备份）
+didi privacy export
+```
 
 ## 技术实现
 
 - Python + Playwright 浏览器自动化
-- SQLite 本地数据存储
+- SQLite 本地数据存储 (加密)
 - 反检测措施（避免被识别为爬虫）
 - 支持滴滴网页版和小程序
-
-## 安全说明
-
-- 所有用户数据本地存储，不上传云端
-- 使用浏览器自动化模拟正常用户操作
-- Cookie加密存储
-- 无恶意代码或后门
 
 ## 依赖
 
 - Python 3.8+
-- Playwright >= 1.40.0
+- `playwright>=1.40.0` (浏览器自动化)
+- `cryptography>=42.0.0` (加密库)
 - Chromium 浏览器
 
 ## 注意事项

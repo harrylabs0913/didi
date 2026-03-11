@@ -19,9 +19,16 @@ except ImportError:
     print("请先安装依赖: pip install playwright && playwright install chromium")
     sys.exit(1)
 
+try:
+    from security import SecureStorage
+except ImportError:
+    print("请安装加密库: pip install cryptography")
+    sys.exit(1)
+
+secure_storage = SecureStorage(app_name="didi")
+
 # 配置
 CONFIG_DIR = Path.home() / ".openclaw" / "data" / "didi"
-COOKIES_FILE = CONFIG_DIR / "cookies.json"
 DB_FILE = CONFIG_DIR / "didi.db"
 CONFIG_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -152,9 +159,9 @@ class DidiClient:
             timezone_id='Asia/Shanghai'
         )
         
-        # 加载cookies
-        if COOKIES_FILE.exists():
-            cookies = json.loads(COOKIES_FILE.read_text())
+        # 加载加密的cookies
+        cookies = secure_storage.load_cookies()
+        if cookies:
             await context.add_cookies(cookies)
         
         self.page = await context.new_page()
@@ -200,10 +207,10 @@ class DidiClient:
             await asyncio.sleep(3)
             await self.page.wait_for_selector(".user-info, .avatar, .username", timeout=120000)
             
-            # 保存cookies
+            # 保存加密的cookies
             cookies = await self.page.context.cookies()
-            COOKIES_FILE.write_text(json.dumps(cookies))
-            print(f"✅ 登录成功！Cookies已保存到 {COOKIES_FILE}")
+            secure_storage.save_cookies(cookies)
+            print(f"✅ 登录成功！Cookies已加密保存")
         except Exception as e:
             print(f"登录超时或失败: {e}")
         
