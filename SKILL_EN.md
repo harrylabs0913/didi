@@ -1,3 +1,12 @@
+---
+version: "1.0.0"
+---
+
+---
+name: didi
+description: "CLI tool for Didi Chuxing ride-hailing service - price estimation, trip booking, and order management"
+---
+
 # Didi Ride-Hailing Assistant
 
 CLI tool for Didi Chuxing ride-hailing service.
